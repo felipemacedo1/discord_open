@@ -10,13 +10,13 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 ## 📖 Explainer Resources
 
 ### Layout Explainer (8K)
-<img src="assets/layout_explainer.png" alt="Layout Explainer" width="800"/>
+<img src="explainer_resources/layout_explainer.png" alt="Layout Explainer" width="800"/>
 
 ### Routing Explainer (8K)
-<img src="assets/routing_explainer_8k.png" alt="Routing Explainer" width="800"/>
+<img src="explainer_resources/routing_explainer_8k.png" alt="Routing Explainer" width="800"/>
 
 ### State Management Explainer (8K)
-<img src="assets/state_management_explainer.png" alt="State Management Explainer" width="800"/>
+<img src="explainer_resources/state_management_explainer.png" alt="State Management Explainer" width="800"/>
 
 ## 🚀 Features
 
