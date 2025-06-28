@@ -35,22 +35,22 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 <img src="assets/iOS_main.png" alt="Server and Channel Section on iOS" width="300"/>
 
 ### Voice Call on macOS
-<img src="assets/both_users_joined_mac.png" alt="Voice call on macOS" width="300"/>
+<img src="assets/both_users_joined_mac.png" alt="Voice call on macOS" width="800"/>
 
 ### Video Call on macOS
-<img src="assets/camera_on_mac.png" alt="Video call on macOS" width="300"/>
+<img src="assets/camera_on_mac.png" alt="Video call on macOS" width="800"/>
 
 ### Screen Share on macOS
-<img src="assets/screen_share_mac.png" alt="Screen Share on macOS" width="300"/>
+<img src="assets/screen_share_mac.png" alt="Screen Share on macOS" width="800"/>
 
 ### Voice Call on Web
-<img src="assets/both_users_joine_web.png" alt="Voice call on Web" width="300"/>
+<img src="assets/both_users_joine_web.png" alt="Voice call on Web" width="800"/>
 
 ### Video Call on Web
-<img src="assets/camera_on_web.png" alt="Video call on Web" width="300"/>
+<img src="assets/camera_on_web.png" alt="Video call on Web" width="800"/>
 
 ### Screen Share on Web
-<img src="assets/screen_share_web.png" alt="Screen Share on Web" width="300"/>
+<img src="assets/screen_share_web.png" alt="Screen Share on Web" width="800"/>
 
 ## 🏗️ Architecture
 
