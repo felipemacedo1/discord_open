@@ -22,29 +22,35 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 
 ## 📸 Project Images
 
-*Screenshots and demos of the Discord clone application will be added here.*
+### Chat Section on Android
+<img src="assets/chat_android.png" alt="Chat section on Android" width="300"/>
 
-![Chat Section on Android](assets/android_chat.png)
-![Server and Channel Section on Android](assets/android_main.png)
-![Chat Section on iOS](assets/iOS_chat.png)
-![Server and Channel Section on iOS](assets/iOS_main.png)
-![Voice call on macOS](assets/both_users_joined_mac.png)
-![Video call on macOS](assets/camera_on_mac.png)
-![Screen Share on macOS](assets/screen_share_mac.png)
-![Voice call on Web](assets/both_users_joine_web.png)
-![Video call on Web](assets/camera_on_web.png)
-![Screen Share on Web](assets/screen_share_web.png)
+### Server and Channel Section on Android
+<img src="assets/android_main.png" alt="Server and Channel Section on Android" width="300"/>
 
+### Chat Section on iOS
+<img src="assets/iOS_chat.png" alt="Chat Section on iOS" width="300"/>
 
+### Server and Channel Section on iOS
+<img src="assets/iOS_main.png" alt="Server and Channel Section on iOS" width="300"/>
 
-<!-- 
-Add your project screenshots here:
-- Main chat interface
-- Voice/video call interface  
-- Server management
-- User authentication
-- Mobile/desktop views
--->
+### Voice Call on macOS
+<img src="assets/both_users_joined_mac.png" alt="Voice call on macOS" width="300"/>
+
+### Video Call on macOS
+<img src="assets/camera_on_mac.png" alt="Video call on macOS" width="300"/>
+
+### Screen Share on macOS
+<img src="assets/screen_share_mac.png" alt="Screen Share on macOS" width="300"/>
+
+### Voice Call on Web
+<img src="assets/both_users_joine_web.png" alt="Voice call on Web" width="300"/>
+
+### Video Call on Web
+<img src="assets/camera_on_web.png" alt="Video call on Web" width="300"/>
+
+### Screen Share on Web
+<img src="assets/screen_share_web.png" alt="Screen Share on Web" width="300"/>
 
 ## 🏗️ Architecture
 
