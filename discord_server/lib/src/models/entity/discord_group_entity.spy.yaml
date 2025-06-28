@@ -1,0 +1,4 @@
+class: DiscordGroupEntity
+fields:
+    group: Group
+    channels: List<DiscordChannel>

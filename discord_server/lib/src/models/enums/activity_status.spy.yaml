@@ -1,0 +1,6 @@
+enum: ActivityStatus
+values:
+ - online
+ - idle
+ - dnd
+ - invisible 

@@ -1,0 +1,8 @@
+class: DiscordServer
+table: discord_server
+fields:
+  name: String
+  newMessagesCount: int
+  newMessagesChats: int
+  serverBackground: String
+  defaultChannelId: int?, relation(parent=discord_channel)

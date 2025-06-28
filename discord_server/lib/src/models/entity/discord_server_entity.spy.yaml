@@ -1,0 +1,4 @@
+class: DiscordServerEntity
+fields:
+    server: DiscordServer
+    groups: List<Group>

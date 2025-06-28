@@ -1,0 +1,52 @@
+{
+    "servers": [
+        {
+            "name": "Server A",
+            "id": 1,
+            "newMessagesCount": 1000,
+            "newMessagesChats": 20
+        },
+        {
+            "name": "Server B",
+            "id": 2,
+            "newMessagesCount": 500,
+            "newMessagesChats": 10
+        },
+        {
+            "name": "Server C",
+            "id": 3,
+            "newMessagesCount": 850,
+            "newMessagesChats": 8
+        },
+        {
+            "name": "Server D",
+            "id": 4,
+            "newMessagesCount": 200,
+            "newMessagesChats": 5
+        },
+        {
+            "name": "Server E",
+            "id": 5,
+            "newMessagesCount": 2000,
+            "newMessagesChats": 21
+        },
+        {
+            "name": "Server F",
+            "id": 6,
+            "newMessagesCount": 10,
+            "newMessagesChats": 4
+        },
+        {
+            "name": "Server G",
+            "id": 7,
+            "newMessagesCount": 11,
+            "newMessagesChats": 1
+        },
+        {
+            "name": "Server H",
+            "id": 8,
+            "newMessagesCount": 12,
+            "newMessagesChats": 3
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/rawaha/Developer/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/rawaha/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/rawaha/Developer/Twitch_Youtube/discord/discord_flutter/android/app/.cxx/Debug/2e6r2o5s/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/rawaha/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/rawaha/Developer/Twitch_Youtube/discord/discord_flutter/android/app/.cxx/Debug/2e6r2o5s/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

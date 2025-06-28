@@ -1,0 +1,66 @@
+{
+  "actions": [
+    {
+      "type": "alterTable",
+      "alterTable": {
+        "name": "server_membership",
+        "schema": "public",
+        "addColumns": [
+          {
+            "name": "_discordUserMembersDiscordUserId",
+            "columnType": 6,
+            "isNullable": true,
+            "dartType": "int?"
+          }
+        ],
+        "deleteColumns": [
+          "_discordUserServermembershipsDiscordUserId"
+        ],
+        "modifyColumns": [],
+        "addIndexes": [],
+        "deleteIndexes": [],
+        "addForeignKeys": [
+          {
+            "constraintName": "server_membership_fk_2",
+            "columns": [
+              "_discordUserMembersDiscordUserId"
+            ],
+            "referenceTable": "discord_user",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 3
+          }
+        ],
+        "deleteForeignKeys": [
+          "server_membership_fk_2"
+        ],
+        "warnings": [
+          {
+            "type": "columnDropped",
+            "message": "Column \"_discordUserServermembershipsDiscordUserId\" of table \"server_membership\" will be dropped.",
+            "table": "server_membership",
+            "columns": [
+              "_discordUserServermembershipsDiscordUserId"
+            ],
+            "destrucive": true
+          }
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "columnDropped",
+      "message": "Column \"_discordUserServermembershipsDiscordUserId\" of table \"server_membership\" will be dropped.",
+      "table": "server_membership",
+      "columns": [
+        "_discordUserServermembershipsDiscordUserId"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

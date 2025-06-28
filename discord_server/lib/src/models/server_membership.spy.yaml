@@ -1,0 +1,6 @@
+class: ServerMembership
+table: server_membership
+fields:
+    userId: int, relation(parent=discord_user)
+    serverId: int, relation(parent=discord_server)
+    discordUser: DiscordUser?, relation

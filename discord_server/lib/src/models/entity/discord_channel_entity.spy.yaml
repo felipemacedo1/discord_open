@@ -1,0 +1,4 @@
+class: DiscordChannelEntity
+fields:
+    channel: DiscordChannel
+    messages: List<Message>

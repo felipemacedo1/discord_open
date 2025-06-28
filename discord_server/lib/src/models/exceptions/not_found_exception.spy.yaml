@@ -1,0 +1,4 @@
+exception: NotFoundException
+fields:
+  message: String
+  status: int

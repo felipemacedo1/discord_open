@@ -1,0 +1,2 @@
+/Users/rawaha/Developer/Twitch_Youtube/discord/discord_flutter/android/app/.cxx/Debug/2e6r2o5s/x86_64/CMakeFiles/edit_cache.dir
+/Users/rawaha/Developer/Twitch_Youtube/discord/discord_flutter/android/app/.cxx/Debug/2e6r2o5s/x86_64/CMakeFiles/rebuild_cache.dir

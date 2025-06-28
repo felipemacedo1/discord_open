@@ -1,0 +1,20 @@
+{
+    "messages": [
+        {
+            "senderProfileUrl": "assets/discord_logo.png",
+            "senderId": 1,
+            "senderName": "No tabs only Spaces",
+            "content": "Only spaces bro...",
+            "contentType": "text",
+            "timeStamp": ""
+        },
+        {
+            "senderProfileUrl": "assets/discord_logo.png",
+            "senderId": 2,
+            "senderName": "ONLY TABS",
+            "content": "Only Tabs no Spaces...",
+            "contentType": "text",
+            "timeStamp": ""
+        }
+    ]
+}

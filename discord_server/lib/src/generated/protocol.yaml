@@ -1,0 +1,29 @@
+discordChannel:
+  - getChannelById:
+  - createChannel:
+discordGroup:
+  - getAllGroups:
+  - getGroupById:
+discordServer:
+  - getServers:
+  - getServerById:
+  - getAllServers:
+  - createDefaultServer:
+  - createServer:
+discordUser:
+  - getUserDetails:
+  - updateUserStatus:
+  - getUsers:
+  - addMemberToServer:
+example:
+  - hello:
+liveStream:
+  - generateToken:
+message:
+  - fetchChatsPaginated:
+  - sendMessage:
+  - listenToMessages:
+  - deleteMessage:
+  - editMessage:
+search:
+  - searchMessages:
