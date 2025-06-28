@@ -23,7 +23,7 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 ## 📸 Project Images
 
 ### Chat Section on Android
-<img src="assets/chat_android.png" alt="Chat section on Android" width="300"/>
+<img src="assets/android_chat.png" alt="Chat section on Android" width="300"/>
 
 ### Server and Channel Section on Android
 <img src="assets/android_main.png" alt="Server and Channel Section on Android" width="300"/>
