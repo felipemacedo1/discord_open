@@ -4,8 +4,19 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 
 ## 🔗 Links
 
-- **YouTube Tutorial**: [Coming Soon - Placeholder for YouTube Link]
-- **Medium Article**: [Coming Soon - Placeholder for Medium Link]
+- **YouTube Video**: https://youtu.be/byOv5MXwN58
+- **Medium Article**: https://medium.com/@rawahamuhammad8/i-built-a-redesigned-discord-with-flutter-serverpod-e8f3bf3e6d42
+
+## 📖 Explainer Resources
+
+### Layout Explainer (8K)
+<img src="assets/layout_explainer.png" alt="Layout Explainer" width="800"/>
+
+### Routing Explainer (8K)
+<img src="assets/routing_explainer_8k.png" alt="Routing Explainer" width="800"/>
+
+### State Management Explainer (8K)
+<img src="assets/state_management_explainer.png" alt="State Management Explainer" width="800"/>
 
 ## 🚀 Features
 
@@ -281,6 +292,22 @@ If you encounter any issues or have questions:
 1. Check the [Issues](https://github.com/your-repo/issues) page
 2. Create a new issue with detailed information
 3. Join our Discord server for community support
+
+## 💬 Join Our Discord Community
+
+Have questions, need support, or want to collaborate and discuss future ideas? Join our Discord community!
+
+[Click here to join the Discord server](https://discord.gg/XgS4KmgRRN)
+
+I'm actively providing support for this project and am open to collaboration and new ideas from the community.
+
+## ☕ Support Me
+
+If you find this project helpful or want to support my work, you can buy me a coffee!
+
+[Buy Me a Coffee](https://buymeacoffee.com/rawaha)
+
+---
 
 ## 🙏 Acknowledgments
 
