@@ -180,17 +180,32 @@ flutter run --dart-define=SERVER_URL=http://your-server:8080/
 1. **Start the Backend**:
    ```bash
    cd discord_server
-   //run docker
+   # Run docker
    docker-compose up --build --detach
-   //apply migrations on server
+   # Apply migrations on server
    dart bin/main.dart --apply-migrations --role=maintenance
-   //generate 
+   # Generate 
    serverpod generate
-   //run server
+   # Run server
    dart run bin/main.dart
    ```
 
-2. **Start the Frontend**:
+2. **Verify Server Health**:
+   ```bash
+   # Basic health check
+   curl http://localhost:8080/health/check
+   
+   # Detailed health check
+   curl http://localhost:8080/health/detailed
+   
+   # Readiness check (for K8s)
+   curl http://localhost:8080/health/ready
+   
+   # Liveness check (for K8s)
+   curl http://localhost:8080/health/live
+   ```
+
+3. **Start the Frontend**:
    ```bash
    cd discord_flutter
    flutter pub get
