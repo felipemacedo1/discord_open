@@ -1,5 +1,6 @@
 import 'package:discord_server/src/endpoints/discord_server_endpoint.dart';
 import 'package:discord_server/src/endpoints/discord_user_endpoint.dart';
+import 'package:discord_server/src/utils/app_logger.dart';
 import 'package:discord_server/src/web/routes/root.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart' as auth;
@@ -12,14 +13,20 @@ import 'src/generated/protocol.dart';
 // configuring Relic (Serverpod's web-server), or need custom setup work.
 
 void run(List<String> args) async {
+  AppLogger.info('🚀 Starting Discord Open Server...');
+
   auth.AuthConfig.set(auth.AuthConfig(
     sendValidationEmail: (session, email, validationCode) async {
-      print('Validation code: $validationCode');
+      AppLogger.auth('Email validation requested', email: email);
+      AppLogger.info('Validation code: $validationCode');
+      // TODO: Integrate with actual email service (SendGrid, AWS SES, etc.)
       return true;
     },
     onUserCreated: (session, userInfo) async {
       final userId = userInfo.id;
       if (userId != null) {
+        AppLogger.auth('User created', userId: userId, email: userInfo.email);
+        
         final user = DiscordUser(
           members: [
             ServerMembership(
@@ -38,6 +45,8 @@ void run(List<String> args) async {
           1,
           userId,
         );
+        
+        AppLogger.info('User added to default server', userId: userId);
       }
     },
   ));
@@ -66,18 +75,28 @@ void run(List<String> args) async {
   // Start the server.
   await pod.start();
 
+  AppLogger.info('✅ Server started successfully');
+  AppLogger.info('📍 API Server: ${pod.config.apiServer.publicScheme}://${pod.config.apiServer.publicHost}:${pod.config.apiServer.publicPort}');
+  AppLogger.info('🌐 Web Server: ${pod.config.webServer.publicScheme}://${pod.config.webServer.publicHost}:${pod.config.webServer.publicPort}');
+
   // Create default Discord server on startup
   await _createDefaultDiscordServer(pod);
 }
 
 Future<void> _createDefaultDiscordServer(Serverpod pod) async {
+  AppLogger.info('🔍 Checking for default Discord server...');
+  
   final session = await pod.createSession();
 
   // Check if a server already exists to avoid duplicates
   final existingServers = await DiscordServerEndpoint().getServers(session);
 
   if (existingServers.isEmpty) {
+    AppLogger.info('📦 Creating default Discord server...');
     // No servers exist, create the default one
     await DiscordServerEndpoint().createDefaultServer(session);
+    AppLogger.info('✅ Default server created successfully');
+  } else {
+    AppLogger.info('✅ Default server already exists');
   }
 }

@@ -11,6 +11,7 @@ dependencies:
   serverpod_auth_server: 2.6.0
   livekit_server_sdk: 1.0.1
   envied: ^0.5.4+1
+  logger: ^2.0.2+1
 
 dev_dependencies:
   envied_generator: ^0.5.4+1
