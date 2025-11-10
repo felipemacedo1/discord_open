@@ -1,6 +1,7 @@
 import 'package:discord_server/src/generated/protocol.dart';
 import 'package:discord_server/src/utils/app_logger.dart';
 import 'package:discord_server/src/utils/auth_helper.dart';
+import 'package:discord_server/src/utils/rate_limiter.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 
@@ -37,11 +38,22 @@ class MessageEndpoint extends Endpoint {
     AppLogger.endpoint('MessageEndpoint', 'sendMessage', 
       params: {'channelId': message.channelId, 'senderId': message.senderInfoId});
     
+    // Validate authenticated user is the sender
+    final authenticatedUserId = await AuthHelper.requireAuthentication(session);
+    
+    // Apply rate limiting per user
+    final rateLimitKey = 'message_send_$authenticatedUserId';
+    if (!RateLimiters.messages.isAllowed(rateLimitKey)) {
+      final remaining = RateLimiters.messages.getRemainingRequests(rateLimitKey);
+      AppLogger.warning('Rate limit exceeded for user $authenticatedUserId');
+      throw RateLimitExceededException(
+        message: 'Too many messages sent. Please slow down.',
+        retryAfterSeconds: 10,
+      );
+    }
+    
     return await session.db.transaction((transaction) async {
       try {
-        // Validate authenticated user is the sender
-        final authenticatedUserId = await AuthHelper.requireAuthentication(session);
-        
         if (message.senderInfoId != authenticatedUserId) {
           AppLogger.warning('Unauthorized message send attempt', 
             null, 
