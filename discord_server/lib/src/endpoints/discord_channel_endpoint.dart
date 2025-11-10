@@ -1,8 +1,13 @@
 import 'package:discord_server/src/generated/protocol.dart';
+import 'package:discord_server/src/utils/auth_helper.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 
 class DiscordChannelEndpoint extends Endpoint {
+  /// Require authentication for channel operations
+  @override
+  bool get requireLogin => true;
+
   Future<DiscordChannelEntity> getChannelById(Session session, int id) async {
     return await session.db.transaction((transaction) async {
       final channel = await DiscordChannel.db.findById(session, id);

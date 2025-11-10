@@ -1,8 +1,12 @@
 import 'package:discord_server/src/generated/protocol.dart';
+import 'package:discord_server/src/utils/auth_helper.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 
 class MessageEndpoint extends Endpoint {
+  /// Require authentication for all message operations
+  @override
+  bool get requireLogin => true;
   /// Fetch paginated messages
   /// [cursor] used to fetch data based on the id of the message we want to fetch the messages before (since the chat is reversed)
   Future<List<Message>> fetchChatsPaginated(
@@ -27,6 +31,13 @@ class MessageEndpoint extends Endpoint {
   // Method to send a message
   Future<Message> sendMessage(Session session, Message message) async {
     return await session.db.transaction((transaction) async {
+      // Validate authenticated user is the sender
+      final authenticatedUserId = await AuthHelper.requireAuthentication(session);
+      
+      if (message.senderInfoId != authenticatedUserId) {
+        throw ForbiddenException('Cannot send message as another user');
+      }
+
       // Save senderInfo to message object
       final senderId = message.senderInfoId;
       final senderInfo = await DiscordUser.db.findById(
@@ -86,6 +97,13 @@ class MessageEndpoint extends Endpoint {
         );
       }
 
+      // Validate ownership
+      await AuthHelper.requireOwnership(
+        session,
+        message.senderInfoId,
+        message: 'You can only delete your own messages',
+      );
+
       await Message.db.updateRow(session, message.copyWith(isDeleted: true));
 
       final updatedMessage = await Message.db.findById(
@@ -124,12 +142,13 @@ class MessageEndpoint extends Endpoint {
           status: 404,
         );
       }
-      final authenticatedUser = await session.authenticated;
-      if (message.senderInfoId != authenticatedUser?.userId) {
-        throw Exception(
-          'You are not the sender of this message',
-        );
-      }
+
+      // Validate ownership
+      await AuthHelper.requireOwnership(
+        session,
+        message.senderInfoId,
+        message: 'You can only edit your own messages',
+      );
 
       await Message.db.updateRow(
         session,
