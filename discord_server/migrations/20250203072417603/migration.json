@@ -1,0 +1,376 @@
+{
+  "actions": [
+    {
+      "type": "deleteTable",
+      "deleteTable": "server_data"
+    },
+    {
+      "type": "deleteTable",
+      "deleteTable": "discord_channel"
+    },
+    {
+      "type": "createTable",
+      "createTable": {
+        "name": "discord_channel",
+        "dartName": "DiscordChannel",
+        "module": "discord",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "nextval('discord_channel_id_seq'::regclass)",
+            "dartType": "int?"
+          },
+          {
+            "name": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "icon",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "messages",
+            "columnType": 8,
+            "isNullable": false,
+            "dartType": "List<protocol:Message>"
+          },
+          {
+            "name": "groupId",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "constraintName": "discord_channel_fk_0",
+            "columns": [
+              "groupId"
+            ],
+            "referenceTable": "group",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 3
+          }
+        ],
+        "indexes": [
+          {
+            "indexName": "discord_channel_pkey",
+            "elements": [
+              {
+                "type": 0,
+                "definition": "id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": true,
+            "isPrimary": true
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "type": "deleteTable",
+      "deleteTable": "discord_server"
+    },
+    {
+      "type": "createTable",
+      "createTable": {
+        "name": "discord_server",
+        "dartName": "DiscordServer",
+        "module": "discord",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "nextval('discord_server_id_seq'::regclass)",
+            "dartType": "int?"
+          },
+          {
+            "name": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "newMessagesCount",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          },
+          {
+            "name": "newMessagesChats",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          },
+          {
+            "name": "serverBackground",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "groups",
+            "columnType": 8,
+            "isNullable": false,
+            "dartType": "List<protocol:Group>"
+          }
+        ],
+        "foreignKeys": [],
+        "indexes": [
+          {
+            "indexName": "discord_server_pkey",
+            "elements": [
+              {
+                "type": 0,
+                "definition": "id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": true,
+            "isPrimary": true
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "type": "createTable",
+      "createTable": {
+        "name": "group",
+        "dartName": "Group",
+        "module": "discord",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "nextval('group_id_seq'::regclass)",
+            "dartType": "int?"
+          },
+          {
+            "name": "name",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "channel",
+            "columnType": 8,
+            "isNullable": false,
+            "dartType": "List<protocol:DiscordChannel>"
+          },
+          {
+            "name": "discordServerId",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "constraintName": "group_fk_0",
+            "columns": [
+              "discordServerId"
+            ],
+            "referenceTable": "discord_server",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 3
+          }
+        ],
+        "indexes": [
+          {
+            "indexName": "group_pkey",
+            "elements": [
+              {
+                "type": 0,
+                "definition": "id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": true,
+            "isPrimary": true
+          }
+        ],
+        "managed": true
+      }
+    },
+    {
+      "type": "deleteTable",
+      "deleteTable": "message"
+    },
+    {
+      "type": "createTable",
+      "createTable": {
+        "name": "message",
+        "dartName": "Message",
+        "module": "discord",
+        "schema": "public",
+        "columns": [
+          {
+            "name": "id",
+            "columnType": 6,
+            "isNullable": false,
+            "columnDefault": "nextval('message_id_seq'::regclass)",
+            "dartType": "int?"
+          },
+          {
+            "name": "senderProfileUrl",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "senderId",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          },
+          {
+            "name": "senderName",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "content",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "contentType",
+            "columnType": 0,
+            "isNullable": false,
+            "dartType": "String"
+          },
+          {
+            "name": "timeStamp",
+            "columnType": 4,
+            "isNullable": false,
+            "dartType": "DateTime"
+          },
+          {
+            "name": "channelId",
+            "columnType": 6,
+            "isNullable": false,
+            "dartType": "int"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "constraintName": "message_fk_0",
+            "columns": [
+              "channelId"
+            ],
+            "referenceTable": "discord_channel",
+            "referenceTableSchema": "public",
+            "referenceColumns": [
+              "id"
+            ],
+            "onUpdate": 3,
+            "onDelete": 3
+          }
+        ],
+        "indexes": [
+          {
+            "indexName": "message_pkey",
+            "elements": [
+              {
+                "type": 0,
+                "definition": "id"
+              }
+            ],
+            "type": "btree",
+            "isUnique": true,
+            "isPrimary": true
+          }
+        ],
+        "managed": true
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "tableDropped",
+      "message": "Table \"server_data\" will be dropped.",
+      "table": "server_data",
+      "columns": [],
+      "destrucive": true
+    },
+    {
+      "type": "columnDropped",
+      "message": "Column \"_serverDataChannelServerDataId\" of table \"discord_channel\" will be dropped.",
+      "table": "discord_channel",
+      "columns": [
+        "_serverDataChannelServerDataId"
+      ],
+      "destrucive": true
+    },
+    {
+      "type": "tableDropped",
+      "message": "One or more columns are added to table \"discord_channel\" which cannot be added in a table migration. The complete table will be deleted and recreated.",
+      "table": "discord_channel",
+      "columns": [
+        "messages"
+      ],
+      "destrucive": true
+    },
+    {
+      "type": "columnDropped",
+      "message": "Column \"serverDataId\" of table \"discord_server\" will be dropped.",
+      "table": "discord_server",
+      "columns": [
+        "serverDataId"
+      ],
+      "destrucive": true
+    },
+    {
+      "type": "tableDropped",
+      "message": "One or more columns are added to table \"discord_server\" which cannot be added in a table migration. The complete table will be deleted and recreated.",
+      "table": "discord_server",
+      "columns": [
+        "groups"
+      ],
+      "destrucive": true
+    },
+    {
+      "type": "columnDropped",
+      "message": "Column \"_discordChannelMessagesDiscordChannelId\" of table \"message\" will be dropped.",
+      "table": "message",
+      "columns": [
+        "_discordChannelMessagesDiscordChannelId"
+      ],
+      "destrucive": true
+    },
+    {
+      "type": "tableDropped",
+      "message": "One or more columns are added to table \"message\" which cannot be added in a table migration. The complete table will be deleted and recreated.",
+      "table": "message",
+      "columns": [
+        "channelId"
+      ],
+      "destrucive": true
+    }
+  ],
+  "migrationApiVersion": 1
+}

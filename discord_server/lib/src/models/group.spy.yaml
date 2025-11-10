@@ -1,0 +1,6 @@
+class: Group
+table: group
+fields:
+    name: String
+    discordServerId: int, relation(parent=discord_server)
+    type: GroupType

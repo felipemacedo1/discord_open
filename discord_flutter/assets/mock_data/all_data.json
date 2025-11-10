@@ -1,0 +1,78 @@
+{
+    "name": "Server A",
+    "serverBackground": "assets/server_background.jpg",
+    "groups": [
+        {
+            "name": "Text Channels",
+            "id": 1,
+            "channels": [
+                {
+                    "name": "general-chat",
+                    "id": 1,
+                    "icon": "assets/hash_icon.png",
+                    "messages": [
+                        {
+                            "senderProfileUrl": "https:www.pexels.com/",
+                            "senderId": 1,
+                            "senderName": "coffiee",
+                            "content": "Nice photo",
+                            "contentType": "text",
+                            "timeStamp": "datetime"
+                        }
+                    ]
+                },
+                {
+                    "name": "general-faq",
+                    "id": 2,
+                    "icon": "assets/hash_icon.png",
+                    "messages": [
+                        {
+                            "senderProfileUrl": "https:www.pexels.com/",
+                            "senderId": 1,
+                            "senderName": "coffiee",
+                            "content": "Nice photo",
+                            "contentType": "text",
+                            "timeStamp": "datetime"
+                        }
+                    ]
+                },
+                {
+                    "name": "general-pics",
+                    "id": 3,
+                    "icon": "assets/hash_icon.png",
+                    "messages": [
+                        {
+                            "senderProfileUrl": "https:www.pexels.com/",
+                            "senderId": 1,
+                            "senderName": "coffiee",
+                            "content": "Nice photo",
+                            "contentType": "text",
+                            "timeStamp": "datetime"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Voice Channels",
+            "id": 1,
+            "channels": [
+                {
+                    "name": "just chilling",
+                    "id": 1,
+                    "icon": "assets/voice_icon.png"
+                },
+                {
+                    "name": "mods only",
+                    "id": 2,
+                    "icon": "assets/voice_icon.png"
+                },
+                {
+                    "name": "no access",
+                    "id": 3,
+                    "icon": "assets/voice_icon.png"
+                }
+            ]
+        }
+    ]
+}

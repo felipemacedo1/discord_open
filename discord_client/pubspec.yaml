@@ -1,0 +1,11 @@
+name: discord_client
+description: Type-safe client for Discord Open communication platform.
+version: 1.0.0
+homepage: https://github.com/felipemacedo1/discord_open
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  serverpod_auth_client: 2.6.0
+  serverpod_client: 2.6.0

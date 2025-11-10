@@ -1,0 +1,91 @@
+/* AUTOMATICALLY GENERATED CODE DO NOT MODIFY */
+/*   To generate run: "serverpod generate"    */
+
+// ignore_for_file: implementation_imports
+// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: public_member_api_docs
+// ignore_for_file: type_literal_in_constant_pattern
+// ignore_for_file: use_super_parameters
+
+// ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:serverpod/serverpod.dart' as _i1;
+
+abstract class NotFoundException
+    implements
+        _i1.SerializableException,
+        _i1.SerializableModel,
+        _i1.ProtocolSerialization {
+  NotFoundException._({
+    required this.message,
+    required this.status,
+  });
+
+  factory NotFoundException({
+    required String message,
+    required int status,
+  }) = _NotFoundExceptionImpl;
+
+  factory NotFoundException.fromJson(Map<String, dynamic> jsonSerialization) {
+    return NotFoundException(
+      message: jsonSerialization['message'] as String,
+      status: jsonSerialization['status'] as int,
+    );
+  }
+
+  String message;
+
+  int status;
+
+  /// Returns a shallow copy of this [NotFoundException]
+  /// with some or all fields replaced by the given arguments.
+  @_i1.useResult
+  NotFoundException copyWith({
+    String? message,
+    int? status,
+  });
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'message': message,
+      'status': status,
+    };
+  }
+
+  @override
+  Map<String, dynamic> toJsonForProtocol() {
+    return {
+      'message': message,
+      'status': status,
+    };
+  }
+
+  @override
+  String toString() {
+    return _i1.SerializationManager.encode(this);
+  }
+}
+
+class _NotFoundExceptionImpl extends NotFoundException {
+  _NotFoundExceptionImpl({
+    required String message,
+    required int status,
+  }) : super._(
+          message: message,
+          status: status,
+        );
+
+  /// Returns a shallow copy of this [NotFoundException]
+  /// with some or all fields replaced by the given arguments.
+  @_i1.useResult
+  @override
+  NotFoundException copyWith({
+    String? message,
+    int? status,
+  }) {
+    return NotFoundException(
+      message: message ?? this.message,
+      status: status ?? this.status,
+    );
+  }
+}

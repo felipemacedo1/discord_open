@@ -1,0 +1,4 @@
+exception: MessageNotSentException
+fields:
+  message: String
+  status: int

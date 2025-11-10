@@ -1,0 +1,6 @@
+class: DiscordUser
+table: discord_user
+fields:
+    userInfo: module:auth:UserInfo?, relation
+    status: ActivityStatus
+    members: List<ServerMembership>?, relation

@@ -1,0 +1,8 @@
+class: DiscordChannel
+table: discord_channel
+fields:
+    name: String
+    icon: String
+    groupId: int, relation(parent=group)
+    discordServerId: int, relation(parent=discord_server)
+    type: GroupType

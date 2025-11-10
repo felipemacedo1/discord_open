@@ -1,0 +1,10 @@
+class: Message
+table: message
+fields: 
+    senderInfo: module:auth:UserInfo?, relation
+    content: String
+    contentType: String
+    timeStamp: DateTime
+    channelId: int, relation(parent=discord_channel)
+    isDelivered: bool
+    isDeleted: bool
