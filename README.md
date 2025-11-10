@@ -1,11 +1,13 @@
-# Discord Clone - Full Stack Application
+# Discord Open - Enterprise Communication Platform
 
-A modern Discord-like application built with Flutter, Serverpod, and LiveKit for real-time communication and live streaming capabilities. This project is based on the Discord redesign concept by [Juxtopposed](https://www.youtube.com/@juxtopposed).
+A modern, enterprise-ready communication platform built with Flutter, Serverpod, and LiveKit for real-time communication and live streaming capabilities. 
+
+**Originally inspired by the Discord redesign concept, now evolved into an independent corporate communication solution.**
 
 ## 🔗 Links
 
-- **YouTube Video**: https://youtu.be/byOv5MXwN58
-- **Medium Article**: https://medium.com/@rawahamuhammad8/i-built-a-redesigned-discord-with-flutter-serverpod-e8f3bf3e6d42
+- **Repository**: https://github.com/felipemacedo1/discord_open
+- **Original Inspiration**: [Juxtopposed's Discord Redesign](https://www.youtube.com/@juxtopposed)
 
 ## 📖 Explainer Resources
 
@@ -23,13 +25,14 @@ A modern Discord-like application built with Flutter, Serverpod, and LiveKit for
 ### Core Features
 - **Real-time Chat**: Instant messaging with support for text channels
 - **Voice & Video Calls**: Live streaming with WebRTC technology
-- **Server Management**: Create and manage Discord-like servers
-- **User Authentication**: Secure email-based authentication system
+- **Server Management**: Create and manage communication servers
+- **User Authentication**: Secure authentication system with support for SSO/SAML (planned)
 - **Cross-platform**: Works on mobile (iOS/Android), desktop (macOS), and web
-- **Modern UI**: Dark theme with Discord-inspired design
+- **Modern UI**: Dark theme with clean, professional design
 - **Live Streaming**: High-quality video calls with screen sharing
 - **Channel Management**: Text and voice channels within servers
 - **Responsive Design**: Optimized for all screen sizes
+- **Enterprise-Ready**: Built with security, compliance, and scalability in mind
 
 ## 📸 Project Images
 
@@ -275,6 +278,8 @@ dart test
 
 ## 🤝 Contributing
 
+Contributions are welcome! This is an independent project focused on enterprise communication solutions.
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
@@ -289,23 +294,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/your-repo/issues) page
+1. Check the [Issues](https://github.com/felipemacedo1/discord_open/issues) page
 2. Create a new issue with detailed information
-3. Join our Discord server for community support
+3. Contact the maintainers
 
-## 💬 Join Our Discord Community
+## � Enterprise Support
 
-Have questions, need support, or want to collaborate and discuss future ideas? Join our Discord community!
-
-[Click here to join the Discord server](https://discord.gg/XgS4KmgRRN)
-
-I'm actively providing support for this project and am open to collaboration and new ideas from the community.
-
-## ☕ Support Me
-
-If you find this project helpful or want to support my work, you can buy me a coffee!
-
-[Buy Me a Coffee](https://buymeacoffee.com/rawaha)
+For enterprise support, custom features, or consulting services, please contact the project maintainers.
 
 ---
 
@@ -314,8 +309,8 @@ If you find this project helpful or want to support my work, you can buy me a co
 - **Serverpod** team for the amazing backend framework
 - **LiveKit** for real-time video calling capabilities
 - **Flutter** team for the cross-platform framework
-- **Juxtopposed** for the UI/UX inspiration
+- **Original Inspiration**: [Juxtopposed](https://www.youtube.com/@juxtopposed) for the UI/UX design concept
 
 ---
 
-**Note**: This is a Discord clone for educational purposes. Please respect Discord's terms of service and trademarks. 
+**Built with ❤️ for secure, scalable enterprise communication** 
