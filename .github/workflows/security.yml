@@ -1,0 +1,231 @@
+name: Code Quality & Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  # Job 1: CodeQL Analysis
+  codeql:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]  # Dart não é suportado diretamente pelo CodeQL
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: 🔍 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # Job 2: Dependency Security Scan
+  dependency-scan:
+    name: 🔒 Dependency Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.3.0'
+
+      - name: 📦 Install dependencies (Server)
+        working-directory: discord_server
+        run: dart pub get
+
+      - name: 📦 Install dependencies (Client)
+        working-directory: discord_client
+        run: dart pub get
+
+      - name: 🔍 Check for outdated packages (Server)
+        working-directory: discord_server
+        run: dart pub outdated --json > outdated-server.json || true
+
+      - name: 🔍 Check for outdated packages (Client)
+        working-directory: discord_client
+        run: dart pub outdated --json > outdated-client.json || true
+
+      - name: 📤 Upload outdated packages report
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-packages
+          path: |
+            discord_server/outdated-server.json
+            discord_client/outdated-client.json
+          retention-days: 30
+
+  # Job 3: SAST (Static Application Security Testing)
+  sast:
+    name: 🛡️ SAST Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+
+  # Job 4: Secret Scanning
+  secret-scan:
+    name: 🔐 Secret Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Gitleaks scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # Job 5: License Compliance
+  license-check:
+    name: 📜 License Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.3.0'
+
+      - name: 📦 Install dependencies
+        working-directory: discord_server
+        run: dart pub get
+
+      - name: 📜 Check licenses
+        working-directory: discord_server
+        run: |
+          echo "Checking package licenses..."
+          dart pub deps --json > deps.json
+          echo "✅ Dependencies exported"
+
+      - name: 📤 Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: discord_server/deps.json
+          retention-days: 30
+
+  # Job 6: Code Metrics
+  code-metrics:
+    name: 📊 Code Metrics
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.3.0'
+
+      - name: 📦 Install dart_code_metrics
+        run: dart pub global activate dart_code_metrics
+
+      - name: 📊 Analyze metrics (Server)
+        working-directory: discord_server
+        run: |
+          dart pub get
+          dart pub global run dart_code_metrics:metrics analyze lib --reporter=console || true
+
+      - name: 📊 Check unused files
+        working-directory: discord_server
+        run: |
+          dart pub global run dart_code_metrics:metrics check-unused-files lib --reporter=console || true
+
+  # Job 7: Docker Image Scan
+  docker-scan:
+    name: 🐳 Docker Image Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Build Docker image
+        working-directory: discord_server
+        run: docker build -t discord-server:test .
+
+      - name: 🔍 Run Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: discord-server:test
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: 📤 Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: 🔍 Run Grype scan
+        uses: anchore/scan-action@v3
+        with:
+          image: discord-server:test
+          fail-build: false
+          severity-cutoff: high
+
+  # Job 8: Security Summary
+  security-summary:
+    name: 📋 Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, dependency-scan, sast, secret-scan, license-check, docker-scan]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Security Summary
+        run: |
+          echo "## 🔒 Security & Quality Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 CodeQL: ${{ needs.codeql.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 Dependency Scan: ${{ needs.dependency-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🛡️ SAST: ${{ needs.sast.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔐 Secret Scan: ${{ needs.secret-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📜 License Check: ${{ needs.license-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 Docker Scan: ${{ needs.docker-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scanned at:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

@@ -1,5 +1,11 @@
 # Discord Open - Enterprise Communication Platform
 
+[![CI/CD](https://github.com/felipemacedo1/discord_open/actions/workflows/ci.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/ci.yml)
+[![Security](https://github.com/felipemacedo1/discord_open/actions/workflows/security.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/security.yml)
+[![Deploy](https://github.com/felipemacedo1/discord_open/actions/workflows/deploy.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/deploy.yml)
+[![codecov](https://codecov.io/gh/felipemacedo1/discord_open/branch/main/graph/badge.svg)](https://codecov.io/gh/felipemacedo1/discord_open)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A modern, enterprise-ready communication platform built with Flutter, Serverpod, and LiveKit for real-time communication and live streaming capabilities. 
 
 **Originally inspired by the Discord redesign concept, now evolved into an independent corporate communication solution.**
