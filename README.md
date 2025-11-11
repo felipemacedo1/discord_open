@@ -1,5 +1,11 @@
 # Discord Open - Enterprise Communication Platform
 
+[![CI/CD](https://github.com/felipemacedo1/discord_open/actions/workflows/ci.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/ci.yml)
+[![Security](https://github.com/felipemacedo1/discord_open/actions/workflows/security.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/security.yml)
+[![Deploy](https://github.com/felipemacedo1/discord_open/actions/workflows/deploy.yml/badge.svg)](https://github.com/felipemacedo1/discord_open/actions/workflows/deploy.yml)
+[![codecov](https://codecov.io/gh/felipemacedo1/discord_open/branch/main/graph/badge.svg)](https://codecov.io/gh/felipemacedo1/discord_open)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A modern, enterprise-ready communication platform built with Flutter, Serverpod, and LiveKit for real-time communication and live streaming capabilities. 
 
 **Originally inspired by the Discord redesign concept, now evolved into an independent corporate communication solution.**
@@ -106,37 +112,42 @@ Before running this project, ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/felipemacedo1/discord_open.git
 cd discord_open
 ```
 
 ### 2. Setup Backend Server
 
-First, start the backend server as it's required for the Flutter app to function:
+**⚠️ Important: Configure environment variables first!**
 
 ```bash
 cd discord_server
 
+# Copy and configure environment variables
+cp .env.example .env
+# Edit .env with your actual values (see docs/ENVIRONMENT_SETUP.md)
+
 # Install dependencies
 dart pub get
+
+# Generate environment code
+dart run build_runner build --delete-conflicting-outputs
 
 # Start database
 docker-compose up --build --detach
 
-# Create migration
+# Create and apply migrations
 serverpod create-migration
-
-# Apply migrations on server
 dart bin/main.dart --apply-migrations --role=maintenance
 
-# After every change you make to the server-side code, you need to run 
+# Generate Serverpod code
 serverpod generate
 
 # Run the server
 dart run bin/main.dart
 ```
 
-The server will start on `http://localhost:8080` by default.
+The server will start on `http://localhost:8080` by default (configurable via `.env`).
 
 ### 3. Setup Flutter Application
 
@@ -155,12 +166,17 @@ flutter run
 
 ### 4. Environment Configuration
 
-#### Frontend Configuration (`discord_flutter/lib/configs.dart`)
-```dart
-class Configs {
-  static const String serverUrl = 'http://localhost:8080';
-  static const String liveKitUrl = 'wss://your_livekit_server.com';
-}
+#### Backend Configuration
+See [Environment Setup Guide](docs/ENVIRONMENT_SETUP.md) for detailed configuration options.
+
+**Key files:**
+- `discord_server/.env` - Your local environment variables (never commit!)
+- `discord_server/.env.example` - Template with all available options
+
+#### Frontend Configuration
+The frontend can be configured at build time:
+```bash
+flutter run --dart-define=SERVER_URL=http://your-server:8080/
 ```
 
 ## 🚀 Quick Start Guide
@@ -170,17 +186,32 @@ class Configs {
 1. **Start the Backend**:
    ```bash
    cd discord_server
-   //run docker
+   # Run docker
    docker-compose up --build --detach
-   //apply migrations on server
+   # Apply migrations on server
    dart bin/main.dart --apply-migrations --role=maintenance
-   //generate 
+   # Generate 
    serverpod generate
-   //run server
+   # Run server
    dart run bin/main.dart
    ```
 
-2. **Start the Frontend**:
+2. **Verify Server Health**:
+   ```bash
+   # Basic health check
+   curl http://localhost:8080/health/check
+   
+   # Detailed health check
+   curl http://localhost:8080/health/detailed
+   
+   # Readiness check (for K8s)
+   curl http://localhost:8080/health/ready
+   
+   # Liveness check (for K8s)
+   curl http://localhost:8080/health/live
+   ```
+
+3. **Start the Frontend**:
    ```bash
    cd discord_flutter
    flutter pub get

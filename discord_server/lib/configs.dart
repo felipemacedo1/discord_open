@@ -1,28 +1,47 @@
+import 'package:discord_server/env/env.dart';
 import 'package:serverpod/serverpod.dart';
 
+/// Application configuration using environment variables
+/// Never hardcode sensitive values here!
 class Configs {
-  static final liveKitApiSecret = '';
-  static final liveKitApiKey = '';
-  static final serverpodConfig = ServerpodConfig(
-    apiServer: ServerConfig(
-      port: 8080,
-      publicScheme: 'https',
-      // publicHost: 'discordflutter-production.up.railway.app',
-      publicHost: 'api.examplepod.com',
-      publicPort: 443,
-    ),
-    database: DatabaseConfig(
-      host: 'localhost',
-      port: 5432,
-      user: 'postgres',
-      password: '123456',
-      name: 'railway',
-    ),
-    webServer: ServerConfig(
-      port: 8082,
-      publicScheme: 'https',
-      publicHost: 'app.examplepod.com',
-      publicPort: 443,
-    ),
-  );
+  // LiveKit Configuration
+  static String get liveKitApiSecret => Env.liveKitApiSecret;
+  static String get liveKitApiKey => Env.liveKitApiKey;
+  static String get liveKitUrl => Env.liveKitUrl;
+
+  // Serverpod Configuration
+  static ServerpodConfig get serverpodConfig {
+    final port = Env.serverPortInt;
+    final host = Env.serverHost;
+    final scheme = Env.serverPublicScheme;
+
+    return ServerpodConfig(
+      apiServer: ServerConfig(
+        port: port,
+        publicScheme: scheme,
+        publicHost: host,
+        publicPort: port,
+      ),
+      database: DatabaseConfig(
+        host: Env.databaseHost,
+        port: Env.databasePortInt,
+        user: Env.databaseUser,
+        password: Env.databasePassword,
+        name: Env.databaseName,
+      ),
+      webServer: ServerConfig(
+        port: port + 2, // webServer typically runs on apiServer port + 2
+        publicScheme: scheme,
+        publicHost: host,
+        publicPort: port + 2,
+      ),
+      redis: Env.isRedisEnabled
+          ? RedisConfig(
+              enabled: true,
+              host: Env.redisHost,
+              port: Env.redisPortInt,
+            )
+          : null,
+    );
+  }
 }

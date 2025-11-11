@@ -5,9 +5,9 @@ services:
     ports:
       - '8090:5432'
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: discord
-      POSTGRES_PASSWORD: "7Tc2uMi5cbyixhB60s7M9gHK9wbjdEiL"
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-discord}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-7Tc2uMi5cbyixhB60s7M9gHK9wbjdEiL}
     volumes:
       - discord_data:/var/lib/postgresql/data
     profiles:
@@ -17,7 +17,7 @@ services:
     image: redis:6.2.6
     ports:
       - '8091:6379'
-    command: redis-server --requirepass "n7A6xB59kKdvO0moCFCcvWmNBCrTuQD5"
+    command: redis-server --requirepass "${REDIS_PASSWORD:-n7A6xB59kKdvO0moCFCcvWmNBCrTuQD5}"
     environment:
       - REDIS_REPLICATION_MODE=master
     profiles:

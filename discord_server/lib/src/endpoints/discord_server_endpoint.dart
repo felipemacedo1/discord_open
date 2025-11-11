@@ -1,8 +1,12 @@
 import 'package:discord_server/src/endpoints/discord_user_endpoint.dart';
 import 'package:discord_server/src/generated/protocol.dart';
+import 'package:discord_server/src/utils/auth_helper.dart';
 import 'package:serverpod/serverpod.dart';
 
 class DiscordServerEndpoint extends Endpoint {
+  /// Require authentication for server operations
+  @override
+  bool get requireLogin => true;
   Future<List<DiscordServer>> getServers(Session session) async {
     return DiscordServer.db.find(session);
   }

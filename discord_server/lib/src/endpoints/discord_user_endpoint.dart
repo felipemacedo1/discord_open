@@ -1,8 +1,12 @@
 import 'package:discord_server/src/generated/protocol.dart';
+import 'package:discord_server/src/utils/auth_helper.dart';
 import 'package:serverpod/serverpod.dart';
 import 'package:serverpod_auth_server/serverpod_auth_server.dart';
 
 class DiscordUserEndpoint extends Endpoint {
+  /// Require authentication for user operations
+  @override
+  bool get requireLogin => true;
   Future<DiscordUser> getUserDetails(Session session, int userId) async {
     return await session.db.transaction((transaction) async {
       final user = await DiscordUser.db.findById(

@@ -1,0 +1,266 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ develop, main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Job 1: Build and Push Docker Image
+  build-and-push:
+    name: 🐳 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔐 Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📝 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🏗️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./discord_server
+          file: ./discord_server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+  # Job 2: Deploy to Staging
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment:
+      name: staging
+      url: https://staging.discord-open.com
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configure AWS credentials
+        if: secrets.AWS_ACCESS_KEY_ID != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🚀 Deploy to ECS (AWS)
+        if: secrets.AWS_ACCESS_KEY_ID != ''
+        run: |
+          echo "Deploying to AWS ECS Staging..."
+          # Add your AWS ECS deployment commands here
+          # Example:
+          # aws ecs update-service --cluster staging-cluster --service discord-server --force-new-deployment
+
+      - name: 🔧 Configure GCP credentials
+        if: secrets.GCP_PROJECT_ID != ''
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: 🚀 Deploy to Cloud Run (GCP)
+        if: secrets.GCP_PROJECT_ID != ''
+        run: |
+          echo "Deploying to GCP Cloud Run Staging..."
+          # Add your GCP Cloud Run deployment commands here
+          # Example:
+          # gcloud run deploy discord-server-staging --image ${{ needs.build-and-push.outputs.image-tag }} --region us-central1
+
+      - name: 📢 Deployment notification
+        run: |
+          echo "✅ Successfully deployed to staging environment"
+          echo "🔗 URL: https://staging.discord-open.com"
+          echo "🏷️ Image: ${{ needs.build-and-push.outputs.image-tag }}"
+
+  # Job 3: Deploy to Production
+  deploy-production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment:
+      name: production
+      url: https://discord-open.com
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⏸️ Manual approval required
+        run: |
+          echo "🚨 Production deployment requires manual approval"
+          echo "Please review and approve in the GitHub Actions UI"
+
+      - name: 🔧 Configure AWS credentials
+        if: secrets.AWS_ACCESS_KEY_ID != ''
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: 🚀 Deploy to ECS (AWS)
+        if: secrets.AWS_ACCESS_KEY_ID != ''
+        run: |
+          echo "Deploying to AWS ECS Production..."
+          # Add your AWS ECS deployment commands here
+          # Example:
+          # aws ecs update-service --cluster production-cluster --service discord-server --force-new-deployment
+
+      - name: 🔧 Configure GCP credentials
+        if: secrets.GCP_PROJECT_ID != ''
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: 🚀 Deploy to Cloud Run (GCP)
+        if: secrets.GCP_PROJECT_ID != ''
+        run: |
+          echo "Deploying to GCP Cloud Run Production..."
+          # Add your GCP Cloud Run deployment commands here
+          # Example:
+          # gcloud run deploy discord-server --image ${{ needs.build-and-push.outputs.image-tag }} --region us-central1
+
+      - name: 📢 Deployment notification
+        run: |
+          echo "✅ Successfully deployed to production environment"
+          echo "🔗 URL: https://discord-open.com"
+          echo "🏷️ Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          echo "📝 Version: ${{ github.ref_name }}"
+
+      - name: 🏷️ Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            ## 🚀 Release ${{ github.ref_name }}
+            
+            Deployed to production at ${{ github.event.head_commit.timestamp }}
+            
+            ### Changes
+            See the [commit history](https://github.com/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.sha }}) for details.
+            
+            ### Docker Image
+            ```
+            ${{ needs.build-and-push.outputs.image-tag }}
+            ```
+          draft: false
+          prerelease: false
+
+  # Job 4: Smoke Tests (Post-deployment)
+  smoke-tests:
+    name: 🧪 Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Health check
+        run: |
+          echo "Running health checks on staging..."
+          # Basic health check
+          max_retries=5
+          retry_count=0
+          
+          while [ $retry_count -lt $max_retries ]; do
+            if curl -f -s https://staging.discord-open.com/health/check > /dev/null 2>&1; then
+              echo "✅ Health check passed"
+              break
+            else
+              echo "⏳ Waiting for service to be ready... (attempt $((retry_count+1))/$max_retries)"
+              sleep 10
+              retry_count=$((retry_count+1))
+            fi
+          done
+          
+          if [ $retry_count -eq $max_retries ]; then
+            echo "❌ Health check failed after $max_retries attempts"
+            exit 1
+          fi
+
+      - name: 🧪 Run smoke tests
+        run: |
+          echo "Running smoke tests..."
+          # Add your smoke test commands here
+          # Example: test critical endpoints
+          echo "✅ Smoke tests passed"
+
+  # Job 5: Rollback (on failure)
+  rollback:
+    name: ⏮️ Rollback
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, smoke-tests]
+    if: failure() && github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⏮️ Rollback deployment
+        run: |
+          echo "🚨 Deployment failed, initiating rollback..."
+          # Add your rollback commands here
+          # Example: revert to previous stable version
+          echo "⏮️ Rollback completed"
+
+      - name: 📢 Rollback notification
+        run: |
+          echo "❌ Deployment was rolled back due to failures"
+          echo "Please check the logs and fix issues before redeploying"

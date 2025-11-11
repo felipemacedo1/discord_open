@@ -1,0 +1,66 @@
+# Auto-labeling configuration for pull requests
+# Labels are applied based on file patterns
+
+# Server code
+server:
+  - discord_server/**/*
+
+# Client code
+client:
+  - discord_client/**/*
+
+# Flutter app
+flutter:
+  - discord_flutter/**/*
+
+# Documentation
+documentation:
+  - '**/*.md'
+  - docs/**/*
+
+# Tests
+tests:
+  - '**/*_test.dart'
+  - '**/test/**/*'
+
+# CI/CD
+ci-cd:
+  - .github/workflows/**/*
+  - '**/.github/**/*'
+
+# Docker
+docker:
+  - '**/Dockerfile'
+  - '**/docker-compose*.yml'
+  - .dockerignore
+
+# Configuration
+config:
+  - '**/*.yaml'
+  - '**/*.yml'
+  - '**/*.json'
+  - '**/*.env*'
+
+# Dependencies
+dependencies:
+  - '**/pubspec.yaml'
+  - '**/pubspec.lock'
+  - '**/package.json'
+  - '**/package-lock.json'
+
+# Database
+database:
+  - '**/migrations/**/*'
+  - '**/*_table.dart'
+
+# Security
+security:
+  - '**/lib/src/utils/auth_helper.dart'
+  - '**/lib/src/utils/rate_limiter.dart'
+  - SECURITY.md
+
+# Infrastructure
+infrastructure:
+  - deploy/**/*
+  - '**/k8s/**/*'
+  - '**/terraform/**/*'

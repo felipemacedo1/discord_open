@@ -1,0 +1,301 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/** ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.19.0'
+  DART_VERSION: '3.3.0'
+
+jobs:
+  # Job 1: Lint and Analyze Server
+  analyze-server:
+    name: 🔍 Analyze Server Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: discord_server
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+
+      - name: 🔨 Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🔍 Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 📊 Analyze code
+        run: dart analyze --fatal-infos
+
+  # Job 2: Test Server
+  test-server:
+    name: 🧪 Test Server
+    runs-on: ubuntu-latest
+    needs: analyze-server
+    defaults:
+      run:
+        working-directory: discord_server
+    
+    services:
+      postgres:
+        image: postgres:16.3
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_test_password
+          POSTGRES_DB: discord_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:6.2.6-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+
+      - name: 🔨 Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 📝 Create test .env file
+        run: |
+          cat > .env << EOF
+          # Environment
+          ENVIRONMENT=test
+          
+          # Database
+          DATABASE_HOST=localhost
+          DATABASE_PORT=5432
+          DATABASE_NAME=discord_test
+          DATABASE_USER=postgres
+          DATABASE_PASSWORD=postgres_test_password
+          
+          # Redis
+          REDIS_ENABLED=true
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          
+          # Server
+          SERVER_PORT=8080
+          WEB_SERVER_PORT=8081
+          INSIGHTS_SERVER_PORT=8082
+          
+          # LiveKit (test credentials)
+          LIVEKIT_API_KEY=test_api_key
+          LIVEKIT_API_SECRET=test_api_secret
+          LIVEKIT_WS_URL=ws://localhost:7880
+          EOF
+
+      - name: 🔨 Generate env code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🧪 Run tests
+        run: dart test --coverage=coverage --reporter=expanded
+
+      - name: 📊 Generate coverage report
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage \
+            --lcov \
+            --in=coverage \
+            --out=coverage/lcov.info \
+            --packages=.dart_tool/package_config.json \
+            --report-on=lib
+
+      - name: 📤 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: discord_server/coverage/lcov.info
+          flags: server
+          name: discord-server
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: 📊 Coverage Summary
+        run: |
+          if [ -f coverage/lcov.info ]; then
+            echo "✅ Coverage report generated successfully"
+            lines=$(grep -c "^SF:" coverage/lcov.info || echo "0")
+            echo "📁 Files covered: $lines"
+          fi
+
+  # Job 3: Lint and Analyze Client
+  analyze-client:
+    name: 🔍 Analyze Client Code
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: discord_client
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ env.DART_VERSION }}
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+
+      - name: 🔍 Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 📊 Analyze code
+        run: dart analyze --fatal-infos
+
+  # Job 4: Build Flutter App
+  build-flutter:
+    name: 🏗️ Build Flutter App
+    runs-on: ubuntu-latest
+    needs: analyze-client
+    defaults:
+      run:
+        working-directory: discord_flutter
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 🔍 Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: 📊 Analyze code
+        run: flutter analyze
+
+      - name: 🧪 Run tests
+        run: flutter test
+
+      - name: 🏗️ Build Android APK (debug)
+        run: flutter build apk --debug --no-shrink
+
+      - name: 📤 Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: discord-flutter-debug-apk
+          path: discord_flutter/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+  # Job 5: Security Scan
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔒 Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 📤 Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Job 6: Dependency Review (only on PRs)
+  dependency-review:
+    name: 🔍 Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  # Job 7: Build Summary
+  build-summary:
+    name: 📋 Build Summary
+    runs-on: ubuntu-latest
+    needs: [analyze-server, test-server, analyze-client, build-flutter, security-scan]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          echo "## 🎉 CI/CD Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Jobs Status" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Server Analysis: ${{ needs.analyze-server.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 Server Tests: ${{ needs.test-server.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Client Analysis: ${{ needs.analyze-client.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏗️ Flutter Build: ${{ needs.build-flutter.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 Security Scan: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- Android APK (debug) available for download" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow:** ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: ✅ All checks passed
+        if: needs.analyze-server.result == 'success' && needs.test-server.result == 'success' && needs.analyze-client.result == 'success' && needs.build-flutter.result == 'success'
+        run: echo "✅ All CI checks passed successfully!"
+
+      - name: ❌ Some checks failed
+        if: needs.analyze-server.result != 'success' || needs.test-server.result != 'success' || needs.analyze-client.result != 'success' || needs.build-flutter.result != 'success'
+        run: |
+          echo "❌ Some CI checks failed. Please review the logs above."
+          exit 1

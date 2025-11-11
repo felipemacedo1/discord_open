@@ -1,0 +1,259 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  # Job 1: PR Validation
+  pr-validation:
+    name: ✅ PR Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+
+      - name: 📝 Check PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr.body || pr.body.length < 50) {
+              core.setFailed('PR description must be at least 50 characters long');
+            }
+
+      - name: 🏷️ Check labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(label => label.name);
+            
+            const validLabels = ['bug', 'enhancement', 'documentation', 'dependencies', 'security', 'performance'];
+            const hasValidLabel = labels.some(label => validLabels.includes(label));
+            
+            if (!hasValidLabel) {
+              core.warning('Consider adding a label to categorize this PR');
+            }
+
+  # Job 2: Size Check
+  pr-size:
+    name: 📏 PR Size Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📏 Check PR size
+        run: |
+          # Get the number of changed lines
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          
+          ADDITIONS=$(git diff --numstat $BASE_SHA..$HEAD_SHA | awk '{sum+=$1} END {print sum}')
+          DELETIONS=$(git diff --numstat $BASE_SHA..$HEAD_SHA | awk '{sum+=$2} END {print sum}')
+          TOTAL=$((ADDITIONS + DELETIONS))
+          FILES=$(git diff --name-only $BASE_SHA..$HEAD_SHA | wc -l)
+          
+          echo "📊 PR Statistics:"
+          echo "- Files changed: $FILES"
+          echo "- Lines added: $ADDITIONS"
+          echo "- Lines deleted: $DELETIONS"
+          echo "- Total changes: $TOTAL"
+          
+          # Add to summary
+          echo "## 📏 PR Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Files Changed | $FILES |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines Added | $ADDITIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lines Deleted | $DELETIONS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Changes | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+          
+          # Warning for large PRs
+          if [ $TOTAL -gt 1000 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **Warning:** This PR is quite large ($TOTAL lines changed). Consider breaking it into smaller PRs for easier review." >> $GITHUB_STEP_SUMMARY
+            core.warning "Large PR detected: $TOTAL lines changed"
+          fi
+
+  # Job 3: Conflict Check
+  conflict-check:
+    name: 🔀 Conflict Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for merge conflicts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            if (pr.mergeable === false) {
+              core.setFailed('❌ This PR has merge conflicts. Please resolve them before proceeding.');
+            } else if (pr.mergeable === true) {
+              core.info('✅ No merge conflicts detected');
+            } else {
+              core.info('⏳ Merge status is being calculated...');
+            }
+
+  # Job 4: Breaking Changes Detection
+  breaking-changes:
+    name: 🚨 Breaking Changes Detection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect breaking changes
+        run: |
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          
+          # Check for breaking changes in commit messages
+          BREAKING=$(git log $BASE_SHA..$HEAD_SHA --grep="BREAKING CHANGE" --pretty=format:"%s" || true)
+          
+          if [ -n "$BREAKING" ]; then
+            echo "🚨 Breaking changes detected:" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "$BREAKING" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ This PR contains breaking changes. Make sure to update documentation and notify users." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No breaking changes detected" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Job 5: Test Coverage Change
+  coverage-comparison:
+    name: 📊 Coverage Comparison
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: discord_server
+    
+    steps:
+      - name: 📥 Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: 🎯 Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.3.0'
+
+      - name: 📦 Install dependencies
+        run: dart pub get
+
+      - name: 🔨 Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 📝 Create .env file
+        run: |
+          cat > .env << EOF
+          ENVIRONMENT=test
+          DATABASE_HOST=localhost
+          DATABASE_PORT=5432
+          DATABASE_NAME=test
+          DATABASE_USER=test
+          DATABASE_PASSWORD=test
+          REDIS_ENABLED=false
+          SERVER_PORT=8080
+          WEB_SERVER_PORT=8081
+          INSIGHTS_SERVER_PORT=8082
+          LIVEKIT_API_KEY=test
+          LIVEKIT_API_SECRET=test
+          LIVEKIT_WS_URL=ws://test
+          EOF
+
+      - name: 🔨 Generate env code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🧪 Run tests with coverage
+        run: dart test --coverage=coverage || true
+
+      - name: 📊 Generate coverage report
+        run: |
+          dart pub global activate coverage
+          dart pub global run coverage:format_coverage \
+            --lcov \
+            --in=coverage \
+            --out=coverage/lcov.info \
+            --packages=.dart_tool/package_config.json \
+            --report-on=lib || true
+
+      - name: 📈 Comment coverage on PR
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        if: always()
+        with:
+          lcov-file: discord_server/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 6: Assignee and Reviewer Check
+  pr-assignment:
+    name: 👥 PR Assignment Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🔍 Check assignees and reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            if (pr.assignees.length === 0) {
+              core.warning('⚠️ This PR has no assignees. Consider assigning someone.');
+            }
+            
+            if (pr.requested_reviewers.length === 0 && pr.requested_teams.length === 0) {
+              core.warning('⚠️ This PR has no reviewers requested. Consider requesting a review.');
+            }
+
+  # Job 7: Auto-label
+  auto-label:
+    name: 🏷️ Auto Label
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: 🏷️ Apply labels based on files changed
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+          sync-labels: true
